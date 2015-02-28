@@ -18,7 +18,8 @@ RUN yum update -y
 RUN rpm --import http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs
 RUN rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 RUN yum install -y epel-release http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
-RUN yum install -y httpd rsync yum-utils createrepo repoview
+RUN yum install -y httpd wget rsync yum-utils createrepo repoview
+RUN rm -f /etc/httpd/conf.d/welcome.conf
 ADD rootfs /
 
 #------------------------------------------------------------------------------
