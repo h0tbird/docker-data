@@ -1,6 +1,4 @@
 # docker-data
-Containerized data server
-
 
 Clone and build the container:
 ```
@@ -14,4 +12,9 @@ Install and run the container:
 sudo ln data.service /etc/systemd/system/data.service
 sudo systemctl daemon-reload
 sudo systemctl start data
+```
+
+Tail the output:
+```
+journalctl -f -u data
 ```
