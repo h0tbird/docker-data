@@ -18,3 +18,8 @@ Tail the output:
 ```
 journalctl -f -u data
 ```
+
+Enter into the container:
+```
+./bin/enter
+```
