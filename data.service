@@ -24,7 +24,7 @@ ExecStartPre=-/usr/sbin/docker pull h0tbird/data:latest
 ExecStart=/usr/bin/sh -c " \
   docker run \
   --tty --privileged \
-  --volume /data/repo/yum_repos:/var/www/data \
+  --volume /data/data:/var/www/data \
   --hostname=data01.demo.lan \
   --name=data01 \
   --net=none \
