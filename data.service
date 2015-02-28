@@ -28,7 +28,7 @@ ExecStart=/usr/bin/sh -c " \
   --hostname=data01.demo.lan \
   --name=data01 \
   --net=none \
-  h0tbird/yyy:latest \
+  h0tbird/data:latest \
   --server-name data01.demo.lan"
 
 #--------------------------------

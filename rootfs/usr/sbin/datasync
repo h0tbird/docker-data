@@ -1,0 +1,56 @@
+#!/bin/bash
+
+DOCROOT='/var/www/data'
+
+case $1 in
+
+'base')
+  rsync -av --progress rsync://mirrors.kernel.org/centos/7/os/x86_64/ \
+  ${DOCROOT}/centos/7/os/x86_64/
+  ;;
+
+'updates')
+  reposync -r updates -d -p /var/www/data/centos/7/ -n
+  createrepo -c ${DOCROOT}/centos/7/updates/cachedir \
+  --update ${DOCROOT}/centos/7/updates
+  repoview -t updates ${DOCROOT}/centos/7/updates
+  ;;
+
+'puppetlabs-products')
+  reposync -r puppetlabs-products -d -p ${DOCROOT}/puppet/ -n
+  createrepo -c ${DOCROOT}/puppet/puppetlabs-products/cachedir \
+  --update ${DOCROOT}/puppet/puppetlabs-products
+  repoview -t puppetlabs-products ${DOCROOT}/puppet/puppetlabs-products
+  [ -f ${DOCROOT}/puppet/RPM-GPG-KEY-puppetlabs ] || \
+  wget -q http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs -P ${DOCROOT}/puppet/
+  ;;
+
+'puppetlabs-deps')
+  reposync -r puppetlabs-deps -d -p ${DOCROOT}/puppet/ -n
+  createrepo -c ${DOCROOT}/puppet/puppetlabs-deps/cachedir \
+  --update ${DOCROOT}/puppet/puppetlabs-deps
+  repoview -t puppetlabs-deps ${DOCROOT}/puppet/puppetlabs-deps
+  [ -f ${DOCROOT}/puppet/RPM-GPG-KEY-puppetlabs ] || \
+  wget -q http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs -P ${DOCROOT}/puppet/
+  ;;
+
+'epel')
+  reposync -r epel -d -p ${DOCROOT}/centos/7/ -n
+  createrepo -c ${DOCROOT}/centos/7/epel/cachedir \
+  --update ${DOCROOT}/centos/7/epel
+  repoview -t epel ${DOCROOT}/centos/7/epel
+  [ -f ${DOCROOT}/centos/7/epel/RPM-GPG-KEY-EPEL-7 ] || \
+  wget -q http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 -P ${DOCROOT}/centos/7/epel/
+  ;;
+
+'misc')
+  createrepo -c ${DOCROOT}/centos/7/misc/cachedir \
+  --update ${DOCROOT}/centos/7/misc
+  repoview -t misc ${DOCROOT}/centos/7/misc
+  ;;
+
+*)
+  echo "Usage: ${0##*/} [base|updates|puppetlabs-products|puppetlabs-deps|epel|misc]"
+  ;;
+
+esac

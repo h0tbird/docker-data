@@ -19,7 +19,7 @@ Tail the output:
 journalctl -f -u data
 ```
 
-Enter into the container:
+Populate the data:
 ```
-./bin/enter
+docker exec -it data01 datasync
 ```
