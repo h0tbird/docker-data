@@ -1,13 +1,13 @@
 # docker-data
 
-Clone and build the container:
+Clone and build:
 ```
 git clone https://github.com/h0tbird/docker-data.git
 cd docker-data
 ./bin/build
 ```
 
-Install and run the container:
+Install and run:
 ```
 sudo ln data.service /etc/systemd/system/data.service
 sudo systemctl daemon-reload
@@ -19,7 +19,7 @@ Tail the output:
 journalctl -f -u data
 ```
 
-Populate the data:
+Synchronize the data:
 ```
 docker exec -it data01 datasync
 ```
