@@ -4,45 +4,32 @@
 # Wait for the network:
 #------------------------------------------------------------------------------
 
-RETRIES=20
+[ "$WAIT_IFACE" ] && {
 
-while [ $RETRIES -gt 0 ]; do
-  ip -o a | grep -q eth1 && break
-  sleep 1; RETRIES=$((RETRIES - 1))
-done
+  RETRIES=20
 
-[ $RETRIES -eq 0 ] && {
-  echo 'Where is the network?' && exit 1
+  echo "[Init] Waiting for ${WAIT_IFACE} network..."
+
+  while [ $RETRIES -gt 0 ]; do
+    ip -o a | grep -q $WAIT_IFACE && break
+    sleep 1; RETRIES=$((RETRIES - 1))
+  done
+
+  [ $RETRIES -eq 0 ] && {
+    echo "[Init] There is no ${WAIT_IFACE} network"
+    exit 1
+  }
+
+  echo "[Init] Interface ${WAIT_IFACE} is present"
 }
-
-#------------------------------------------------------------------------------
-# Parse command line arguments:
-#------------------------------------------------------------------------------
-
-while [[ $# > 1 ]]; do
-
-  key="$1"
-
-  case $key in
-
-    --server-name)
-      SERVER_NAME="$2"
-      shift
-      ;;
-
-    *) ;;
-
-  esac
-
-  shift
-
-done
 
 #------------------------------------------------------------------------------
 # Configure the service:
 #------------------------------------------------------------------------------
 
-[[ -n $SERVER_NAME ]] && {
+echo '[Init] Configuring the service...'
+
+[ "$SERVER_NAME" ] && {
   sed -i "s/XXX-SERVER_NAME-XXX/$SERVER_NAME/" /etc/httpd/conf/httpd.conf
   sed -i "s/XXX-SERVER_NAME-XXX/$SERVER_NAME/" /etc/httpd/conf.d/25-data.conf
 }
@@ -51,4 +38,5 @@ done
 # Run:
 #------------------------------------------------------------------------------
 
-exec /usr/sbin/httpd -DFOREGROUND
+echo "[Init] Executing: $*"
+exec $*

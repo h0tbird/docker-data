@@ -2,7 +2,7 @@
 # Set the base image for subsequent instructions:
 #------------------------------------------------------------------------------
 
-FROM centos:latest
+FROM centos
 MAINTAINER Marc Villacorta Morera <marc.villacorta@gmail.com>
 
 #------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ RUN rm -f /etc/httpd/conf.d/welcome.conf
 ADD rootfs /
 
 #------------------------------------------------------------------------------
-# Set systemd as default process:
+# Entrypoint:
 #------------------------------------------------------------------------------
 
-ENTRYPOINT ["/usr/sbin/start"]
+ENTRYPOINT ["/init", "/usr/sbin/httpd", "-DFOREGROUND"]
