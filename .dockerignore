@@ -2,5 +2,7 @@ bin
 .git
 .gitignore
 .dockerignore
+data.service
+data.conf
 README.md
 *.swp

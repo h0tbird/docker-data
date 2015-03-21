@@ -9,11 +9,7 @@ cd docker-data
 
 Install and run:
 ```
-sudo ln data.service /etc/systemd/system/data.service
-sudo ln bin/runctl /usr/local/sbin/runctl-data
-sudo mkdir /etc/bootpaas
-sudo cp data.conf /etc/bootpaas
-sudo systemctl daemon-reload
+sudo ./bin/install
 sudo systemctl start data
 ```
 
