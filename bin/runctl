@@ -1,0 +1,82 @@
+#!/bin/bash
+
+#------------------------------------------------------------------------------
+# Global constants:
+#------------------------------------------------------------------------------
+
+readonly DOCKER=`which docker`
+readonly IPCMD=`which ip`
+readonly BRCTL=`which brctl`
+
+#------------------------------------------------------------------------------
+# Source the configuration:
+#------------------------------------------------------------------------------
+
+[ -f /etc/bootpaas/data.conf ] && . /etc/bootpaas/data.conf || exit 99
+
+#------------------------------------------------------------------------------
+# To be called by ExecStartPre:
+#------------------------------------------------------------------------------
+
+function run_pre {
+  $DOCKER kill $ID || exit 1
+  $DOCKER rm $ID || exit 2
+  $DOCKER pull $IMAGE && return 0
+}
+
+#------------------------------------------------------------------------------
+# To be called by ExecStart:
+#------------------------------------------------------------------------------
+
+function run_start {
+  exec $DOCKER run -t \
+  --volume   /data/data:/var/www/data \
+  --hostname $HOSTNAME \
+  --name     $ID \
+  --net      none \
+  --env      WAIT_IFACE=eth1 \
+  --env      SERVER_NAME=$HOSTNAME \
+  $IMAGE
+}
+
+#------------------------------------------------------------------------------
+# To be called by ExecStartPost:
+#------------------------------------------------------------------------------
+
+function run_post {
+
+  sleep 2
+
+  PID=$(docker inspect --format='{{ .State.Pid }}' $ID)
+  [ ! -d /var/run/netns ] && mkdir -p /var/run/netns
+  ln -fs /proc/$PID/ns/net /var/run/netns/$PID
+  [ -f /run/dhcpcd-eth1* ] && rm -f /run/dhcpcd-eth1*
+
+  $IPCMD link add ${ID}-int type veth peer name veth-${ID}
+  $IPCMD link set veth-${ID} master br0
+  $IPCMD link set veth-${ID} up
+  $IPCMD link set netns $PID dev ${ID}-int
+  $IPCMD netns exec $PID ip link set ${ID}-int name eth1
+  $IPCMD netns exec $PID dhcpcd -4 -A -c /bin/true -q eth1 -h $ID
+}
+
+#------------------------------------------------------------------------------
+# To be called by ExecStop:
+#------------------------------------------------------------------------------
+
+function run_stop {
+
+  $DOCKER stop $ID || exit 1
+
+  $BRCTL show | grep -q veth-${ID} && {
+    $IPCMD link del veth-${ID} || exit 2
+  }
+
+  return 0
+}
+
+#------------------------------------------------------------------------------
+# Entry point:
+#------------------------------------------------------------------------------
+
+case $1 in pre|start|post|stop) run_$1 ;; esac

@@ -1,5 +1,5 @@
 [Unit]
-Description=Data server
+Description=Data container
 After=docker.service boot.service
 Requires=docker.service
 Wants=boot.service
@@ -9,49 +9,17 @@ Restart=on-failure
 RestartSec=20
 TimeoutStartSec=0
 
-#---------------------------------
 # Preparations for the container:
-#---------------------------------
+ExecStartPre=-/usr/local/sbin/runctl-data pre
 
-ExecStartPre=-/usr/sbin/docker kill data01
-ExecStartPre=-/usr/sbin/docker rm data01
-ExecStartPre=-/usr/sbin/docker pull h0tbird/data:latest
-
-#----------------------
 # Start the container:
-#----------------------
+ExecStart=/usr/local/sbin/runctl-data start
 
-ExecStart=/usr/bin/sh -c "docker run -t \
-  --volume   /data/data:/var/www/data \
-  --hostname data01.demo.lan \
-  --name     data01 \
-  --net      none \
-  --env      WAIT_IFACE=eth1 \
-  --env      SERVER_NAME=data01.demo.lan \
-  h0tbird/data:latest"
-
-#--------------------------------
 # Setup the container's network:
-#--------------------------------
+ExecStartPost=/usr/local/sbin/runctl-data post
 
-ExecStartPost=/usr/sbin/sleep 2
-ExecStartPost=/usr/bin/sh -c " \
-  PID=$(docker inspect --format='{{ .State.Pid }}' data01); \
-  [ ! -d /var/run/netns ] && mkdir -p /var/run/netns; \
-  ln -fs /proc/$PID/ns/net /var/run/netns/$PID; \
-  [ -f /run/dhcpcd-eth1* ] && rm -f /run/dhcpcd-eth1*; \
-  ip link add data01-int type veth peer name veth-data01; \
-  ip link set veth-data01 master br0; \
-  ip link set veth-data01 up; \
-  ip link set netns $PID dev data01-int; \
-  ip netns exec $PID ip link set data01-int name eth1; \
-  ip netns exec $PID dhcpcd -4 -A -c /bin/true -q eth1 -h data01"
-
-#---------------------
 # Stop the container:
-#---------------------
-
-ExecStop=/usr/sbin/docker stop data01
+ExecStop=/usr/local/sbin/runctl-data stop
 
 [Install]
 WantedBy=multi-user.target
