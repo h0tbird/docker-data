@@ -34,7 +34,7 @@ function run_start {
   --hostname $HOSTNAME \
   --name     $ID \
   --net      none \
-  --env      WAIT_IFACE=eth1 \
+  --env      WAIT_NETWORK=true \
   --env      SERVER_NAME=$HOSTNAME \
   $IMAGE
 }
