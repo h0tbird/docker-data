@@ -47,8 +47,8 @@ function run_post {
 
   # Wait for the container:
   RETRIES=10; while [ $RETRIES -gt 0 ]; do
-    PID=$($DOCKER inspect --format='{{ .State.Pid }}' $ID | \
-    grep -oE "^[0-9]+") || PID=0
+    PID=$($DOCKER inspect --format='{{ .State.Pid }}' \
+    $ID 2> /dev/null | grep -oE "^[0-9]+") || PID=0
     [ $PID -gt 0 ] && break
     sleep 1; RETRIES=$((RETRIES - 1))
   done
@@ -57,7 +57,6 @@ function run_post {
   [ $RETRIES -eq 0 ] && exit 1
   [ ! -d /var/run/netns ] && mkdir -p /var/run/netns
   ln -fs /proc/$PID/ns/net /var/run/netns/$PID || exit 2
-  [ -f /run/dhcpcd-eth1* ] && rm -f /run/dhcpcd-eth1*
 
   # Host-side network:
   $IPCMD link add ${ID}-int type veth peer name veth-${ID} || exit 3
@@ -67,6 +66,7 @@ function run_post {
 
   # Container-side network:
   $IPCMD netns exec $PID ip link set ${ID}-int name eth1 || exit 7
+  [ -f /run/dhcpcd-eth1* ] && rm -f /run/dhcpcd-eth1*
   $IPCMD netns exec $PID dhcpcd -4 -A -c /bin/true -q eth1 -h $ID || exit 8
 }
 
