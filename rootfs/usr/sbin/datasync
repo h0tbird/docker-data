@@ -5,18 +5,21 @@ DOCROOT='/var/www/data'
 case $1 in
 
 'base')
+  [ -d ${DOCROOT}/centos/7/os/x86_64 ] || mkdir -p ${DOCROOT}/centos/7/os/x86_64
   rsync -av --progress rsync://mirrors.kernel.org/centos/7/os/x86_64/ \
   ${DOCROOT}/centos/7/os/x86_64/
   ;;
 
 'updates')
-  reposync -r updates -d -p /var/www/data/centos/7/ -n
+  [ -d ${DOCROOT}/centos/7 ] || mkdir -p ${DOCROOT}/centos/7
+  reposync -r updates -d -p ${DOCROOT}/centos/7/ -n
   createrepo -c ${DOCROOT}/centos/7/updates/cachedir \
   --update ${DOCROOT}/centos/7/updates
   repoview -t updates ${DOCROOT}/centos/7/updates
   ;;
 
 'puppetlabs-products')
+  [ -d ${DOCROOT}/puppet ] || mkdir -p ${DOCROOT}/puppet
   reposync -r puppetlabs-products -d -p ${DOCROOT}/puppet/ -n
   createrepo -c ${DOCROOT}/puppet/puppetlabs-products/cachedir \
   --update ${DOCROOT}/puppet/puppetlabs-products
@@ -26,6 +29,7 @@ case $1 in
   ;;
 
 'puppetlabs-deps')
+  [ -d ${DOCROOT}/puppet ] || mkdir -p ${DOCROOT}/puppet
   reposync -r puppetlabs-deps -d -p ${DOCROOT}/puppet/ -n
   createrepo -c ${DOCROOT}/puppet/puppetlabs-deps/cachedir \
   --update ${DOCROOT}/puppet/puppetlabs-deps
@@ -35,6 +39,7 @@ case $1 in
   ;;
 
 'epel')
+  [ -d ${DOCROOT}/centos/7 ] || mkdir -p ${DOCROOT}/centos/7
   reposync -r epel -d -p ${DOCROOT}/centos/7/ -n
   createrepo -c ${DOCROOT}/centos/7/epel/cachedir \
   --update ${DOCROOT}/centos/7/epel
@@ -44,6 +49,7 @@ case $1 in
   ;;
 
 'coreos')
+  [ -d ${DOCROOT}/coreos ] || mkdir -p ${DOCROOT}/coreos
   wget http://alpha.release.core-os.net/amd64-usr/current/coreos_production_qemu_image.img.bz2 \
   -O ${DOCROOT}/coreos/coreos_qemu.img.bz2
   ;;
