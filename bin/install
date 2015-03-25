@@ -5,8 +5,8 @@ ln -f data.service /etc/systemd/system/data.service
 ln -f bin/runctl /usr/local/sbin/runctl-data
 
 # Populate config if not present:
-[ -d /etc/bootpaas ] || mkdir /etc/bootpaas
-[ ! -f /etc/bootpaas/data.conf ] && cp data.conf /etc/bootpaas/
+[ -d /etc/booddies ] || mkdir /etc/booddies
+[ ! -f /etc/booddies/data.conf ] && cp data.conf /etc/booddies/
 
 # Reload systemd:
 systemctl daemon-reload
