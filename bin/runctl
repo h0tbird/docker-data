@@ -6,6 +6,7 @@
 
 readonly DOCKER=`which docker`
 readonly IPCMD=`which ip`
+readonly BRCTL=`which brctl`
 
 #------------------------------------------------------------------------------
 # Source the configuration:
@@ -37,8 +38,7 @@ function run_pre {
 
   echo $MSG1; $DOCKER ps | grep -q $ID && {
   echo $MSG2; $DOCKER kill $ID &> /dev/null && echo $MSG3 || {
-  echo $MSG4; exit 2
-  } } || echo $MSG5
+  echo $MSG4; exit 2; } } || echo $MSG5
 
   #-----------------------------------------
   # Delete the container if it does exists:
@@ -52,8 +52,7 @@ function run_pre {
 
   echo $MSG1; $DOCKER ps -a | grep -q $ID && {
   echo $MSG2; $DOCKER rm $ID &> /dev/null && echo $MSG3 || {
-  echo $MSG4; exit 3
-  } } || echo $MSG5
+  echo $MSG4; exit 3; } } || echo $MSG5
 
   #----------------------------------------------------
   # Delete the host-side network interface if present:
@@ -65,10 +64,23 @@ function run_pre {
   local MSG4="[Pre] Ops! Failed to delete the interface 'veth-${ID}'"
   local MSG5="[Pre] OK! The interface 'veth-${ID}' does not exists"
 
-  echo $MSG1; ip l show dev veth-${ID} &> /dev/null && {
+  echo $MSG1; $IPCMD l show dev veth-${ID} &> /dev/null && {
   echo $MSG2; $IPCMD link del veth-${ID} &> /dev/null && echo $MSG3 || {
-  echo $MSG4; exit 4
-  } } || echo $MSG5
+  echo $MSG4; exit 4; } } || echo $MSG5
+
+  #----------------------------------------------------
+  # Create the host's bridge interface if not present:
+  #----------------------------------------------------
+
+  local MSG1="[Pre] Checking whether 'br0' interface exists..."
+  local MSG2="[Pre] The interface 'br0' is not present, creating it..."
+  local MSG3="[Pre] OK! The interface 'br0' has been created"
+  local MSG4="[Pre] Ops! Failed to create interface 'br0'"
+  local MSG5="[Pre] OK! The interface 'br0' exists"
+
+  echo $MSG1; ! $IPCMD l show dev br0 &> /dev/null && {
+  echo $MSG2; $BRCTL addbr br0 && echo $MSG3 || {
+  echo $MSG4; exit 5; } } || echo $MSG5
 
   #-------------------------------------------------------------
   # Download the image if not present or is tagged as 'latest':
@@ -84,8 +96,7 @@ function run_pre {
   $DOCKER images | grep $IMAGE | grep -q latest; COND2=$?
   echo $MSG1; [[ "$COND1" -eq 0 || "$COND2" -eq 0 ]] && {
   echo $MSG2; $DOCKER pull $IMAGE &> /dev/null && echo $MSG3 || {
-  echo $MSG4; exit 5
-  } } || echo $MSG5
+  echo $MSG4; exit 6; } } || echo $MSG5
 }
 
 #------------------------------------------------------------------------------
@@ -146,7 +157,7 @@ function run_post {
   local MSG3="[Post] Ops! Cannot add interfaces '${ID}-int' nor 'veth-${ID}'"
 
   echo $MSG1; $IPCMD link add ${ID}-int type veth peer name veth-${ID} && \
-  echo $MSG2 || (echo $MSG3; exit 3)
+  echo $MSG2 || { echo $MSG3; exit 3; }
 
   #-------------------------------------------------------
   # Connect the host peer interface to the host's bridge:
@@ -157,7 +168,7 @@ function run_post {
   local MSG3="[Post] Ops! Cannot connect 'veth-${ID}' interface to 'br0'"
 
   echo $MSG1; $IPCMD link set veth-${ID} master br0 && \
-  echo $MSG2 || (echo $MSG3; exit 4)
+  echo $MSG2 || { echo $MSG3; exit 4; }
 
   #------------------------------------------
   # Bring up the host's peer interface link:
@@ -168,7 +179,7 @@ function run_post {
   local MSG3="[Post] Ops! Cannot bring up 'veth-${ID}' link"
 
   echo $MSG1; $IPCMD link set veth-${ID} up && \
-  echo $MSG2 || (echo $MSG3; exit 5)
+  echo $MSG2 || { echo $MSG3; exit 5; }
 
   #-----------------------------------------------------------
   # Inject the container's peer interface into the container:
@@ -179,7 +190,7 @@ function run_post {
   local MSG3="[Post] Ops! Cannot inject '${ID}-int' into the container"
 
   echo $MSG1; $IPCMD link set netns $PID dev ${ID}-int && \
-  echo $MSG2 || (echo $MSG3; exit 6)
+  echo $MSG2 || { echo $MSG3; exit 6; }
 
   #------------------------------------------------
   # Rename the container's peer interface to eth1:
@@ -189,8 +200,8 @@ function run_post {
   local MSG2="[Post] OK! '${ID}-int' has been renamed to eth1"
   local MSG3="[Post] Ops! Cannot rename '${ID}-int'"
 
-  echo $MSG1; $IPCMD netns exec $PID ip link set ${ID}-int name eth1 && \
-  echo $MSG2 || (echo $MSG3; exit 7)
+  echo $MSG1; $IPCMD netns exec $PID $IPCMD link set ${ID}-int name eth1 && \
+  echo $MSG2 || { echo $MSG3; exit 7; }
 
   #----------------------------------------------------
   # Use DHCP to setup the container's eth1 IP address:
@@ -202,7 +213,7 @@ function run_post {
 
   [ -f /run/dhcpcd-eth1* ] && rm -f /run/dhcpcd-eth1*
   echo $MSG1; $IPCMD netns exec $PID dhcpcd -4 -A -c /bin/true -q eth1 -h $ID && \
-  echo $MSG2 || (echo $MSG3; exit 8)
+  echo $MSG2 || { echo $MSG3; exit 8; }
 }
 
 #------------------------------------------------------------------------------
@@ -223,8 +234,7 @@ function run_stop {
 
   echo $MSG1; $DOCKER ps | grep -q $ID && {
   echo $MSG2; $DOCKER stop $ID &> /dev/null && echo $MSG3 || {
-  echo $MSG4; exit 2
-  } } || echo $MSG5
+  echo $MSG4; exit 2; } } || echo $MSG5
 
   #----------------------------------------------------
   # Delete the host-side network interface if present:
@@ -236,10 +246,9 @@ function run_stop {
   local MSG4="[Stop] Ops! Failed to delete the interface 'veth-${ID}'"
   local MSG5="[Stop] OK! The interface 'veth-${ID}' does not exists"
 
-  echo $MSG1; ip l show dev veth-${ID} &> /dev/null && {
+  echo $MSG1; $IPCMD l show dev veth-${ID} &> /dev/null && {
   echo $MSG2; $IPCMD link del veth-${ID} &> /dev/null && echo $MSG3 || {
-  echo $MSG4; exit 2
-  } } || echo $MSG5
+  echo $MSG4; exit 2; } } || echo $MSG5
 }
 
 #------------------------------------------------------------------------------
