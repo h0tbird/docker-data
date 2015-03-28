@@ -1,5 +1,7 @@
 # docker-data
 
+This container is member of the [*booddies*](https://github.com/h0tbird/booddies) fellowship.
+
 Clone and build:
 ```
 git clone https://github.com/h0tbird/docker-data.git
