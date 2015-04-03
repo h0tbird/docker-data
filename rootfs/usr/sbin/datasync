@@ -6,7 +6,7 @@ case $1 in
 
 'base')
   [ -d ${DOCROOT}/centos/7/os/x86_64 ] || mkdir -p ${DOCROOT}/centos/7/os/x86_64
-  rsync -av --progress rsync://mirrors.kernel.org/centos/7/os/x86_64/ \
+  rsync -av --delete --progress rsync://mirrors.kernel.org/centos/7/os/x86_64/ \
   ${DOCROOT}/centos/7/os/x86_64/
   ;;
 
