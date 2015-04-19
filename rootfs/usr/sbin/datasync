@@ -55,6 +55,8 @@ case $1 in
   ;;
 
 'misc')
+  [ -d ${DOCROOT}/centos/7 ] || mkdir -p ${DOCROOT}/centos/7
+  reposync -r misc -d -p ${DOCROOT}/centos/7/ -n
   createrepo -c ${DOCROOT}/centos/7/misc/cachedir \
   --update ${DOCROOT}/centos/7/misc
   repoview -t misc ${DOCROOT}/centos/7/misc
