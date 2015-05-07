@@ -4,6 +4,9 @@
 # Globals:
 #------------------------------------------------------------------------------
 
+# Settings:
+readonly OUI='00:16:3e'
+
 # Return codes:
 readonly E_BAD_CMD=10
 readonly E_BAD_CONF=11
@@ -24,6 +27,15 @@ source /etc/booddies/data.conf || exit ${E_BAD_CONF}
 [ -z "${IMAGE}" ] && echo 'Ops! IMAGE is not set' && exit ${E_BAD_CONF}
 [ -z "${HOSTNAME}" ] && echo 'Ops! HOSTNAME is not set' && exit ${E_BAD_CONF}
 [ -z "${DATA_DIR}" ] && echo 'Ops! DATA_DIR is not set' && exit ${E_BAD_CONF}
+
+#------------------------------------------------------------------------------
+# Functions:
+#------------------------------------------------------------------------------
+
+function genmac() {
+  echo "${HOSTNAME}" | md5sum | \
+  hexdump -n3 -e "/3 \"${OUI}\" 3/1 \":%02X\""
+}
 
 #------------------------------------------------------------------------------
 # Function to be called by ExecStartPre:
@@ -134,8 +146,8 @@ function run_post() {
   local MSG1="[Post] Adding '${ID}-int' as peer of 'veth-${ID}'..."
   local MSG2="[Post] OK! Both '${ID}-int' and 'veth-${ID}' have been added"
   local MSG3="[Post] Ops! Cannot add interfaces '${ID}-int' nor 'veth-${ID}'"
-  echo ${MSG1}; ${CMD_IP} link add ${ID}-int type veth peer name veth-${ID} && \
-  echo ${MSG2} || { echo ${MSG3}; exit 3; }
+  echo ${MSG1}; ${CMD_IP} link add ${ID}-int address $(genmac) \
+  type veth peer name veth-${ID} && echo ${MSG2} || { echo ${MSG3}; exit 3; }
 
   # Connect the host peer interface to the host's bridge:
   local MSG1="[Post] Connecting 'veth-${ID}' interface to 'br0'"
