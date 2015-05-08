@@ -173,19 +173,21 @@ function run_post() {
   echo ${MSG1}; ${CMD_IP} link set netns ${PID} dev ${ID}-int && \
   echo ${MSG2} || { echo ${MSG3}; exit 6; }
 
-  # Use DHCP to setup the container's IP address:
-  local MSG1="[Post] Running DHCP client on container's interface..."
-  local MSG2="[Post] OK! The DHCP client returned successfully"
-  local MSG3="[Post] Ops! The DHCP client returned a non-zero value"
-  echo ${MSG1}; ${CMD_IP} netns exec ${PID} ${CMD_DHCPCD} -4 -A -c /bin/true -q ${ID}-int -h ${ID} && \
-  echo ${MSG2} || { echo ${MSG3}; exit 8; }
-
   # Rename the container's peer interface to eth1:
   local MSG1="[Post] Renaming container's '${ID}-int' to eth1..."
   local MSG2="[Post] OK! '${ID}-int' has been renamed to eth1"
   local MSG3="[Post] Ops! Cannot rename '${ID}-int'"
-  echo ${MSG1}; ${CMD_IP} netns exec ${PID} ${CMD_IP} link set ${ID}-int name eth1 && \
+  echo ${MSG1}; ${CMD_IP} netns exec ${PID} ${CMD_IP} link set ${ID}-int down && \
+  ${CMD_IP} netns exec ${PID} ${CMD_IP} link set ${ID}-int name eth1 && \
+  ${CMD_IP} netns exec ${PID} ${CMD_IP} link set eth1 up && \
   echo ${MSG2} || { echo ${MSG3}; exit 7; }
+
+  # Use DHCP to setup the container's IP address:
+  local MSG1="[Post] Running DHCP client on container's interface..."
+  local MSG2="[Post] OK! The DHCP client returned successfully"
+  local MSG3="[Post] Ops! The DHCP client returned a non-zero value"
+  echo ${MSG1}; ${CMD_DOCKER} exec -it ${ID} /usr/sbin/dhclient -4 -H ${ID} eth1 \
+  echo ${MSG2} || { echo ${MSG3}; exit 8; }
 }
 
 #------------------------------------------------------------------------------
