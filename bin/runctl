@@ -30,6 +30,7 @@ source /etc/booddies/data.conf || exit ${E_BAD_CONF}
 [ -z "${IMAGE}" ] && echo 'Ops! IMAGE is not set' && exit ${E_BAD_CONF}
 [ -z "${HOSTNAME}" ] && echo 'Ops! HOSTNAME is not set' && exit ${E_BAD_CONF}
 [ -z "${DATA_DIR}" ] && echo 'Ops! DATA_DIR is not set' && exit ${E_BAD_CONF}
+[ -z "${COREOS_CHANNEL}" ] && echo 'Ops! COREOS_CHANNEL is not set' && exit ${E_BAD_CONF}
 
 #------------------------------------------------------------------------------
 # Functions:
@@ -114,6 +115,7 @@ function run_start() {
   --net      none \
   --env      WAIT_NETWORK=true \
   --env      SERVER_NAME="${HOSTNAME}" \
+  --env      COREOS_CHANNEL="${COREOS_CHANNEL}" \
   ${IMAGE}
 }
 
