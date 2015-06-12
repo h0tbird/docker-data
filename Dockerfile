@@ -16,7 +16,7 @@ RUN rpm --import http://mirror.centos.org/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-
 
 RUN yum install -y epel-release \
     http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm \
-    http://yum-repositories.s3-website-eu-west-1.amazonaws.com/centos/7/misc/centos-misc-release-1-0.1.noarch.rpm && \
+    http://yum-repositories.s3-website-eu-west-1.amazonaws.com/booddies/booddies-release-1.1.noarch.rpm && \
     yum clean all
 
 RUN yum install -y dhclient httpd wget rsync yum-utils createrepo repoview && \
