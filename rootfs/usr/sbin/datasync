@@ -63,16 +63,16 @@ case $1 in
   -O ${DOCROOT}/coreos/coreos_qemu.img.bz2
   ;;
 
-'misc')
-  [ -d ${DOCROOT}/centos/7 ] || mkdir -p ${DOCROOT}/centos/7
-  reposync -r misc -d -p ${DOCROOT}/centos/7/ -n
-  createrepo -c ${DOCROOT}/centos/7/misc/cachedir \
-  --update ${DOCROOT}/centos/7/misc
-  repoview -t misc ${DOCROOT}/centos/7/misc
+'booddies')
+  [ -d ${DOCROOT}/booddies ] || mkdir -p ${DOCROOT}/booddies
+  reposync -r booddies -d -p ${DOCROOT}/centos/7/ -n
+  createrepo -c ${DOCROOT}/booddies/cachedir \
+  --update ${DOCROOT}/booddies
+  repoview -t booddies ${DOCROOT}/booddies
   ;;
 
 *)
-  echo "Usage: ${0##*/} [base|updates|extras|puppetlabs-products|puppetlabs-deps|epel|coreos|misc]"
+  echo "Usage: ${0##*/} [base|updates|extras|puppetlabs-products|puppetlabs-deps|epel|coreos|booddies]"
   ;;
 
 esac
