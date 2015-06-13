@@ -12,6 +12,7 @@ MAINTAINER Marc Villacorta Morera <marc.villacorta@gmail.com>
 RUN rpm --import http://mirror.centos.org/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7 && \
     rpm --import http://yum.puppetlabs.com/RPM-GPG-KEY-puppetlabs && \
     rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 && \
+    rpm --import http://yum-repositories.s3-website-eu-west-1.amazonaws.com/RPM-GPG-KEY-booddies && \
     yum update -y && yum clean all
 
 RUN yum install -y epel-release \

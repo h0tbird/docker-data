@@ -65,10 +65,12 @@ case $1 in
 
 'booddies')
   [ -d ${DOCROOT}/booddies ] || mkdir -p ${DOCROOT}/booddies
-  reposync -r booddies -d -p ${DOCROOT}/centos/7/ -n
+  reposync -r booddies -d -p ${DOCROOT}/booddies/ -n
   createrepo -c ${DOCROOT}/booddies/cachedir \
   --update ${DOCROOT}/booddies
   repoview -t booddies ${DOCROOT}/booddies
+  [ -f ${DOCROOT}/booddies/RPM-GPG-KEY-booddies ] || \
+  wget -q http://yum-repositories.s3-website-eu-west-1.amazonaws.com/RPM-GPG-KEY-booddies -P ${DOCROOT}/booddies/
   ;;
 
 *)
