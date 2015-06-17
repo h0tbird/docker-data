@@ -65,7 +65,7 @@ case $1 in
 
 'booddies')
   [ -d ${DOCROOT}/booddies ] || mkdir -p ${DOCROOT}/booddies
-  reposync -r booddies -d -p ${DOCROOT}/booddies/ -n
+  reposync -r booddies -d -p ${DOCROOT}/ -n
   createrepo -c ${DOCROOT}/booddies/cachedir \
   --update ${DOCROOT}/booddies
   repoview -t booddies ${DOCROOT}/booddies
