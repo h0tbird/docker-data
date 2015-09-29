@@ -33,6 +33,11 @@ echo '[Init] Configuring the service...'
   sed -i "s/XXX-COREOS_CHANNEL-XXX/${COREOS_CHANNEL}/" /usr/sbin/datasync
 }
 
+[ "${DOCKER_VOLUME_RBD_VERSION}" ] && {
+  sed -i "s/XXX-DOCKER_VOLUME_RBD_VERSION-XXX/${DOCKER_VOLUME_RBD_VERSION}/" \
+  /usr/sbin/datasync
+}
+
 [ "${SERVER_NAME}" ] && {
   sed -i "s/XXX-SERVER_NAME-XXX/${SERVER_NAME}/" /etc/httpd/conf/httpd.conf
   sed -i "s/XXX-SERVER_NAME-XXX/${SERVER_NAME}/" /etc/httpd/conf.d/25-data.conf

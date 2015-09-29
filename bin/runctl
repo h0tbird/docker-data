@@ -28,6 +28,7 @@ source /etc/booddies/data.conf || exit ${E_BAD_CONF}
 [ -z "${HOSTNAME}" ] && echo 'Ops! HOSTNAME is not set' && exit ${E_BAD_CONF}
 [ -z "${DATA_DIR}" ] && echo 'Ops! DATA_DIR is not set' && exit ${E_BAD_CONF}
 [ -z "${COREOS_CHANNEL}" ] && echo 'Ops! COREOS_CHANNEL is not set' && exit ${E_BAD_CONF}
+[ -z "${DOCKER_VOLUME_RBD_VERSION}" ] && echo 'Ops! DOCKER_VOLUME_RBD_VERSION is not set' && exit ${E_BAD_CONF}
 [ -z "${HOST_BRIDGE}" ] && echo 'Ops! HOST_BRIDGE is not set' && exit ${E_BAD_CONF}
 [ -z "${IFACE}" ] && echo 'Ops! IFACE is not set' && exit ${E_BAD_CONF}
 [ -z "${OUI}" ] && echo 'Ops! OUI is not set' && exit ${E_BAD_CONF}
@@ -116,6 +117,7 @@ function run_start() {
   --env      WAIT_NETWORK=true \
   --env      SERVER_NAME="${HOSTNAME}" \
   --env      COREOS_CHANNEL="${COREOS_CHANNEL}" \
+  --env      DOCKER_VOLUME_RBD_VERSION="${DOCKER_VOLUME_RBD_VERSION}" \
   ${IMAGE}
 }
 
