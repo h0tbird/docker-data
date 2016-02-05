@@ -1,7 +1,8 @@
 # docker-data
 
 [![Build Status](https://travis-ci.org/h0tbird/docker-data.svg?branch=master)](https://travis-ci.org/h0tbird/docker-data)
-[![](https://badge.imagelayers.io/h0tbird/data:latest.svg)](https://imagelayers.io/?images=h0tbird/data:latest 'Get your own badge on imagelayers.io')
+[![](https://img.shields.io/imagelayers/image-size/h0tbird/data/latest.svg)](https://imagelayers.io/?images=h0tbird/data:latest)
+[![](https://img.shields.io/imagelayers/layers/h0tbird/data/latest.svg)](https://imagelayers.io/?images=h0tbird/data:latest)
 
 This container is member of the [*booddies*](https://github.com/h0tbird/booddies) fellowship.
 
